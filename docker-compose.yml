@@ -1,0 +1,37 @@
+# Untuk lokal/development:  docker compose up -d --build
+# Production: ./build.sh → paket deploy (deploy/docker-compose.yml + install.sh)
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-digisign}
+      POSTGRES_USER: ${DB_USERNAME:-digisign}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?isi DB_PASSWORD di file .env}
+      TZ: Asia/Makassar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: digisign:dev
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME:-digisign}
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    volumes:
+      - appdata:/data
+
+volumes:
+  pgdata:
+  appdata:

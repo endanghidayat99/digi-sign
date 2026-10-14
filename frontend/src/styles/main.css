@@ -1,0 +1,9 @@
+html { overflow-y: auto; }
+body { font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+
+.page-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.01em; color: #0F2A4A; }
+.page-subtitle { color: #5B6B7F; font-size: 0.92rem; }
+.mono { font-family: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace; font-size: 0.8rem; word-break: break-all; }
+.card-border { border: 1px solid #E3E8EF !important; }
+.label { color: #6B7A8C; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.value { color: #1B2B3C; font-weight: 500; }

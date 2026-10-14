@@ -1,0 +1,61 @@
+server:
+  port: ${SERVER_PORT:8080}
+  forward-headers-strategy: framework
+  compression:
+    enabled: true
+
+spring:
+  application:
+    name: digisign
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/digisign}
+    username: ${DB_USERNAME:digisign}
+    password: ${DB_PASSWORD:digisign}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  jpa:
+    open-in-view: false
+    hibernate:
+      # skema dikelola oleh Flyway (db/migration)
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_SIZE:25MB}
+      max-request-size: ${MAX_UPLOAD_SIZE:25MB}
+  jackson:
+    time-zone: ${APP_TIMEZONE:Asia/Makassar}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+app:
+  # URL publik aplikasi, dipakai sebagai isi QR Code: {public-base-url}/verify/{token}
+  public-base-url: ${APP_PUBLIC_BASE_URL:http://localhost:8080}
+  # Folder penyimpanan file PDF & logo (mount sebagai volume di Docker)
+  storage-dir: ${APP_STORAGE_DIR:./data/storage}
+  timezone: ${APP_TIMEZONE:Asia/Makassar}
+  jwt:
+    # WAJIB diganti di production, minimal 32 karakter
+    secret: ${APP_JWT_SECRET:change-this-jwt-secret-to-a-long-random-string-0123456789}
+    expiration-minutes: ${APP_JWT_EXPIRATION_MINUTES:480}
+  # Kunci HMAC untuk segel tanda tangan (jangan diubah setelah ada tanda tangan, segel lama jadi tidak valid)
+  signature-secret: ${APP_SIGNATURE_SECRET:change-this-signature-secret-0123456789abcdef}
+  # Izinkan file PDF diunduh dari halaman verifikasi publik
+  public-download: ${APP_PUBLIC_DOWNLOAD:false}
+  admin:
+    username: ${APP_ADMIN_USERNAME:admin}
+    password: ${APP_ADMIN_PASSWORD:admin123}
+    full-name: ${APP_ADMIN_FULLNAME:Administrator}

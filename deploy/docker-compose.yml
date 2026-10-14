@@ -1,0 +1,58 @@
+# Production stack DigiSign
+#
+#   app (Spring Boot + frontend)  ──▶ postgres
+#   :8080 (satu-satunya port yang dibuka ke luar)
+#
+# Pasang TLS (https) di depan "app" — mis. nginx/HAProxy host atau load balancer —
+# lalu isi APP_PUBLIC_BASE_URL dengan alamat https tersebut.
+name: digisign
+
+services:
+  postgres:
+    image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-digisign}
+      POSTGRES_USER: ${DB_USERNAME:-digisign}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD wajib diisi di .env}
+      TZ: Asia/Makassar
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: digisign:${APP_TAG:?APP_TAG wajib diisi}
+    restart: unless-stopped
+    depends_on:
+      postgres: { condition: service_healthy }
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-digisign}
+      DB_USERNAME: ${DB_USERNAME:-digisign}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_POOL_SIZE: ${DB_POOL_SIZE:-10}
+      APP_PUBLIC_BASE_URL: ${APP_PUBLIC_BASE_URL:?APP_PUBLIC_BASE_URL wajib diisi}
+      APP_TIMEZONE: ${APP_TIMEZONE:-Asia/Makassar}
+      APP_JWT_SECRET: ${APP_JWT_SECRET:?APP_JWT_SECRET wajib diisi}
+      APP_JWT_EXPIRATION_MINUTES: ${APP_JWT_EXPIRATION_MINUTES:-480}
+      APP_SIGNATURE_SECRET: ${APP_SIGNATURE_SECRET:?APP_SIGNATURE_SECRET wajib diisi}
+      APP_ADMIN_USERNAME: ${APP_ADMIN_USERNAME:-admin}
+      APP_ADMIN_PASSWORD: ${APP_ADMIN_PASSWORD:?APP_ADMIN_PASSWORD wajib diisi}
+      APP_ADMIN_FULLNAME: ${APP_ADMIN_FULLNAME:-Administrator}
+      APP_PUBLIC_DOWNLOAD: ${APP_PUBLIC_DOWNLOAD:-false}
+      MAX_UPLOAD_SIZE: ${MAX_UPLOAD_SIZE:-25MB}
+    ports:
+      - "${APP_BIND:-127.0.0.1}:${APP_PORT:-8080}:8080"
+    volumes:
+      # file PDF & logo — backup bersama database
+      - appdata:/data
+    logging:
+      driver: json-file
+      options: { max-size: "20m", max-file: "5" }
+
+volumes:
+  pgdata:
+  appdata:
