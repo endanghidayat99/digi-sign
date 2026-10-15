@@ -1,6 +1,6 @@
 # DigiSign — Tanda Tangan Digital Dokumen Internal
 
-Aplikasi internal untuk menandatangani dokumen (Functional Test, Berita Acara Serah Terima, Log Modification, dan jenis lain yang bisa ditambah sendiri) dengan **QR Code berlogo perusahaan**. Saat QR dipindai, terbuka halaman web publik yang menampilkan detail verifikasi: nomor dokumen, jenis dokumen, tanggal & waktu tanda tangan, dan siapa penandatangannya.
+Aplikasi internal untuk menandatangani dokumen dengan **QR Code berlogo perusahaan**. Saat QR dipindai, terbuka halaman web publik yang menampilkan detail verifikasi: nomor dokumen, jenis dokumen, tanggal & waktu tanda tangan, dan siapa penandatangannya.
 
 | Lapisan  | Teknologi |
 |----------|-----------|
